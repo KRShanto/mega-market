@@ -3,7 +3,7 @@
 import { createClientServer } from "@/lib/supabase"
 import { redirect } from "next/navigation"
 
-export async function signIn(formData: FormData) {
+export async function signIn(prevState: any, formData: FormData) {
   const email = formData.get("email") as string
   const password = formData.get("password") as string
 
@@ -21,7 +21,7 @@ export async function signIn(formData: FormData) {
   redirect("/")
 }
 
-export async function signUp(formData: FormData) {
+export async function signUp(prevState: any, formData: FormData) {
   const email = formData.get("email") as string
   const password = formData.get("password") as string
   const firstName = formData.get("firstName") as string

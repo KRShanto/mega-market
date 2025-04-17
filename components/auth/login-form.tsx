@@ -11,12 +11,12 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
 import Link from "next/link"
 import { signIn } from "@/app/actions/auth"
-import { useFormState } from "react-dom"
+import { useActionState } from "react"
 
 const initialState = { error: null }
 
 export function LoginForm({ registered = false }: { registered?: boolean }) {
-  const [state, formAction] = useFormState(signIn, initialState)
+  const [state, formAction] = useActionState(signIn, initialState)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

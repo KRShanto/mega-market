@@ -1,4 +1,3 @@
-import { Navbar } from "@/components/layout/navbar"
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight, CheckCircle } from "lucide-react"
@@ -7,7 +6,6 @@ import { Button } from "@/components/ui/button"
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col">
-      <Navbar />
       <main className="flex-1">
         {/* Hero Section */}
         <section className="w-full py-12 md:py-24 lg:py-32 bg-gradient-to-b from-theme-50 to-white">
