@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -13,11 +13,18 @@ import Link from "next/link"
 import { signIn } from "@/app/actions/auth"
 import { useActionState } from "react"
 
-const initialState = { error: null }
+const initialState = { error: null, success: false, redirectTo: null }
 
 export function LoginForm({ registered = false }: { registered?: boolean }) {
   const [state, formAction] = useActionState(signIn, initialState)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Handle redirect with hard reload when login is successful
+  useEffect(() => {
+    if (state.success && state.redirectTo) {
+      window.location.href = state.redirectTo
+    }
+  }, [state.success, state.redirectTo])
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     setIsSubmitting(true)
@@ -59,8 +66,8 @@ export function LoginForm({ registered = false }: { registered?: boolean }) {
             </div>
             <Input id="password" name="password" type="password" required />
           </div>
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Signing in..." : "Sign In"}
+          <Button type="submit" className="w-full" disabled={isSubmitting || state.success}>
+            {isSubmitting || state.success ? "Signing in..." : "Sign In"}
           </Button>
         </form>
       </CardContent>

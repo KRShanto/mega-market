@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -13,7 +13,7 @@ import Link from "next/link"
 import { signUp } from "@/app/actions/auth"
 import { useActionState } from "react"
 
-const initialState = { error: null }
+const initialState = { error: null, success: false, redirectTo: null }
 
 export function RegisterForm() {
   const [state, formAction] = useActionState(signUp, initialState)
@@ -21,6 +21,13 @@ export function RegisterForm() {
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [passwordsMatch, setPasswordsMatch] = useState(true)
+
+  // Handle redirect with hard reload when registration is successful
+  useEffect(() => {
+    if (state.success && state.redirectTo) {
+      window.location.href = state.redirectTo
+    }
+  }, [state.success, state.redirectTo])
 
   const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -96,8 +103,8 @@ export function RegisterForm() {
             />
             {!passwordsMatch && confirmPassword && <p className="text-sm text-destructive">Passwords do not match</p>}
           </div>
-          <Button type="submit" className="w-full" disabled={isSubmitting || !passwordsMatch}>
-            {isSubmitting ? "Creating account..." : "Create Account"}
+          <Button type="submit" className="w-full" disabled={isSubmitting || !passwordsMatch || state.success}>
+            {isSubmitting || state.success ? "Creating account..." : "Create Account & Sign In"}
           </Button>
         </form>
       </CardContent>

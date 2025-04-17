@@ -1,24 +1,22 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { LogOut } from "lucide-react"
-import { createClientBrowser } from "@/lib/supabase"
+import { signOut } from "@/app/actions/auth"
 
 export function SignOutButton() {
   const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
 
   const handleSignOut = async () => {
     setIsLoading(true)
 
     try {
-      const supabase = createClientBrowser()
-      await supabase.auth.signOut()
-      router.refresh()
+      const result = await signOut()
+      if (result.success && result.redirectTo) {
+        window.location.href = result.redirectTo
+      }
     } catch (error) {
       console.error("Error signing out:", error)
-    } finally {
       setIsLoading(false)
     }
   }
