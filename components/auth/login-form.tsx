@@ -3,7 +3,6 @@
 import type React from "react"
 
 import { useState } from "react"
-import { useAuth } from "@/contexts/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,26 +10,18 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
 import Link from "next/link"
+import { signIn } from "@/app/actions/auth"
+import { useFormState } from "react-dom"
 
-export function LoginForm() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const { signIn } = useAuth()
+const initialState = { error: null }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setIsLoading(true)
+export function LoginForm({ registered = false }: { registered?: boolean }) {
+  const [state, formAction] = useFormState(signIn, initialState)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-    try {
-      await signIn(email, password)
-    } catch (error: any) {
-      setError(error.message || "Failed to sign in")
-    } finally {
-      setIsLoading(false)
-    }
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    setIsSubmitting(true)
+    // The form will be handled by the formAction
   }
 
   return (
@@ -40,23 +31,24 @@ export function LoginForm() {
         <CardDescription>Enter your email and password to access your account</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
+        {registered && (
+          <Alert className="mb-4 bg-green-50 text-green-800 border-green-200">
+            <AlertDescription>
+              Registration successful! You can now sign in with your email and password.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        <form action={formAction} onSubmit={handleSubmit} className="space-y-4">
+          {state.error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription>{state.error}</AlertDescription>
             </Alert>
           )}
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="name@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            <Input id="email" name="email" type="email" placeholder="name@example.com" required />
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
@@ -65,16 +57,10 @@ export function LoginForm() {
                 Forgot password?
               </Link>
             </div>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <Input id="password" name="password" type="password" required />
           </div>
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Signing in..." : "Sign In"}
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Signing in..." : "Sign In"}
           </Button>
         </form>
       </CardContent>

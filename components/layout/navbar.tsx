@@ -1,9 +1,6 @@
-"use client"
-
 import Link from "next/link"
-import { useAuth } from "@/contexts/auth-context"
+import { ShoppingBag, User, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { ShoppingBag, User, LogOut, Settings, Store, ShoppingCart } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,9 +9,23 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  getServerUser,
+  getServerProfile,
+  isRootAdmin,
+  isShopAdmin,
+  hasShop,
+  hasPendingShopRequest,
+} from "@/lib/server-auth"
+import { SignOutButton } from "@/components/auth/sign-out-button"
 
-export function Navbar() {
-  const { user, profile, signOut, isRootAdmin, isShopAdmin, hasShop, hasPendingShopRequest } = useAuth()
+export async function Navbar() {
+  const user = await getServerUser()
+  const profile = user ? await getServerProfile() : null
+  const userIsRootAdmin = user ? await isRootAdmin() : false
+  const userIsShopAdmin = user ? await isShopAdmin() : false
+  const userHasShop = user ? await hasShop() : false
+  const userHasPendingShopRequest = user ? await hasPendingShopRequest() : false
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -56,44 +67,31 @@ export function Navbar() {
                   <DropdownMenuSeparator />
 
                   <DropdownMenuItem asChild>
-                    <Link href="/account">
-                      <Settings className="mr-2 h-4 w-4" />
-                      <span>Account Settings</span>
-                    </Link>
+                    <Link href="/account">Account Settings</Link>
                   </DropdownMenuItem>
 
-                  {isRootAdmin && (
+                  {userIsRootAdmin && (
                     <DropdownMenuItem asChild>
-                      <Link href="/admin/seller-applications">
-                        <Store className="mr-2 h-4 w-4" />
-                        <span>Seller Applications</span>
-                      </Link>
+                      <Link href="/admin/seller-applications">Seller Applications</Link>
                     </DropdownMenuItem>
                   )}
 
-                  {isShopAdmin && hasShop && (
+                  {userIsShopAdmin && userHasShop && (
                     <DropdownMenuItem asChild>
-                      <Link href="/seller/dashboard">
-                        <Store className="mr-2 h-4 w-4" />
-                        <span>Seller Dashboard</span>
-                      </Link>
+                      <Link href="/seller/dashboard">Seller Dashboard</Link>
                     </DropdownMenuItem>
                   )}
 
-                  {!isShopAdmin && !hasPendingShopRequest && (
+                  {!userIsShopAdmin && !userHasPendingShopRequest && (
                     <DropdownMenuItem asChild>
-                      <Link href="/become-seller">
-                        <Store className="mr-2 h-4 w-4" />
-                        <span>Become a Seller</span>
-                      </Link>
+                      <Link href="/become-seller">Become a Seller</Link>
                     </DropdownMenuItem>
                   )}
 
                   <DropdownMenuSeparator />
 
-                  <DropdownMenuItem onClick={() => signOut()}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Sign Out</span>
+                  <DropdownMenuItem>
+                    <SignOutButton />
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

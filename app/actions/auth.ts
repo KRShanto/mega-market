@@ -1,65 +1,54 @@
 "use server"
 
 import { createClientServer } from "@/lib/supabase"
-import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
 
-type RegisterFormState = {
-  success: boolean
-  error: string | null
+export async function signIn(formData: FormData) {
+  const email = formData.get("email") as string
+  const password = formData.get("password") as string
+
+  const supabase = createClientServer()
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  redirect("/")
 }
 
-export async function registerUser(prevState: RegisterFormState, formData: FormData): Promise<RegisterFormState> {
+export async function signUp(formData: FormData) {
   const email = formData.get("email") as string
   const password = formData.get("password") as string
   const firstName = formData.get("firstName") as string
   const lastName = formData.get("lastName") as string
 
-  try {
-    // Create a server-side Supabase client with admin privileges
-    const supabase = createClientServer()
+  const supabase = createClientServer()
 
-    // Step 1: Create the user in auth.users
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true, // Auto-confirm the email
-      user_metadata: {
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
         first_name: firstName,
         last_name: lastName,
       },
-    })
+    },
+  })
 
-    if (authError) {
-      console.error("Auth error:", authError)
-      return { success: false, error: `Authentication error: ${authError.message}` }
-    }
-
-    if (!authData.user) {
-      return { success: false, error: "Failed to create user" }
-    }
-
-    // Step 2: Manually create the profile
-    const { error: profileError } = await supabase.from("profiles").insert({
-      id: authData.user.id,
-      first_name: firstName,
-      last_name: lastName,
-      display_name: `${firstName} ${lastName}`.trim(),
-      role: "user",
-    })
-
-    if (profileError) {
-      console.error("Profile creation error:", profileError)
-
-      // If profile creation fails, try to delete the auth user to avoid orphaned accounts
-      await supabase.auth.admin.deleteUser(authData.user.id)
-
-      return { success: false, error: `Profile creation error: ${profileError.message}` }
-    }
-
-    revalidatePath("/auth/register")
-    return { success: true, error: null }
-  } catch (error: any) {
-    console.error("Unexpected error during registration:", error)
-    return { success: false, error: `Unexpected error: ${error.message}` }
+  if (error) {
+    return { error: error.message }
   }
+
+  redirect("/auth/login?registered=true")
+}
+
+export async function signOut() {
+  const supabase = createClientServer()
+  await supabase.auth.signOut()
+  redirect("/")
 }
