@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Base colors */
+    --background: 0 0% 100%;
+    --foreground: 224 71.4% 4.1%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 71.4% 4.1%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71.4% 4.1%;
+    --muted: 220 14.3% 95.9%;
+    --muted-foreground: 220 8.9% 46.1%;
+    --accent: 220 14.3% 95.9%;
+    --accent-foreground: 220.9 39.3% 11%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 20% 98%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --radius: 0.5rem;
+
+    /* Theme colors - Indigo */
+    --theme-50: 226 100% 97%;
+    --theme-100: 224 100% 93%;
+    --theme-200: 224 95% 86%;
+    --theme-300: 225 95% 75%;
+    --theme-400: 227 92% 64%;
+    --theme-500: 231 91% 56%;
+    --theme-600: 237 85% 48%;
+    --theme-700: 244 76% 42%;
+    --theme-800: 243 75% 33%;
+    --theme-900: 244 64% 28%;
+    --theme-950: 245 58% 19%;
+
+    /* Set primary to use theme color */
+    --primary: var(--theme-600);
+    --primary-foreground: 210 20% 98%;
+    --secondary: var(--theme-100);
+    --secondary-foreground: var(--theme-900);
+    --ring: var(--theme-600);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
